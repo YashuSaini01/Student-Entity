@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/YOUR_USERNAME/your-repo-name.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh './mvnw clean package -DskipTests'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.image('database-mcp-server:latest').build('.')
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Jenkins Pipeline completed successfully! MCP Server image is ready.'
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs.'
+        }
+    }
+}
